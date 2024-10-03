@@ -17,6 +17,11 @@ Matrix<S, R, C>::Matrix() {
 }
 
 template <typename S, int R, int C>
+Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
+    m = new Eigen::Matrix<S, R, C>( *A.m );
+}
+
+template <typename S, int R, int C>
 Matrix<S, R, C>::~Matrix() {
     delete m;
 }
@@ -40,6 +45,8 @@ template <typename S, int R, int C>
 void Matrix<S, R, C>::conservativeResize( int r, int c ) {
     if constexpr ( R == -1 )
         m->conservativeResize( r, c );
+    else
+        assert( 0 );
 }
 
 template <typename S, int R, int C>

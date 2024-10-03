@@ -16,6 +16,7 @@ const int Dynamic = -1;
 template <typename S, int R, int C>
 struct Matrix {
     Matrix();
+    Matrix( Matrix<S, R, C> &A );
     ~Matrix();
 
     void setZero();

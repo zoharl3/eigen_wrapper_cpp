@@ -15,6 +15,7 @@ int main() {
     Eigen::MatrixXd X;
     X.resize( 2, 3 );
     X.setZero();
+    X.conservativeResize(2, 2);
     cout << X << endl;
 
     Eigen::Vector2d v2;
