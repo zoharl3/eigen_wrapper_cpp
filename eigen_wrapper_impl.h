@@ -37,6 +37,12 @@ void Matrix<S, R, C>::resize( int r, int c ) {
 }
 
 template <typename S, int R, int C>
+void Matrix<S, R, C>::conservativeResize( int r, int c ) {
+    if constexpr ( R == -1 )
+        m->conservativeResize( r, c );
+}
+
+template <typename S, int R, int C>
 Matrix<S, R, C>& Matrix<S, R, C>::operator=( const Matrix<S, R, C> &A ) {
     *m = *A.m;
     return *this;
@@ -49,11 +55,11 @@ std::ostream &operator<<( std::ostream &os, const Matrix<S, R, C> &mat ) {
     return os;
 }
 
-template <typename S, int R, int C>
-Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R, C> &B ) {
-    Matrix<S, R, C> C;
-    *C.m = *A.m * *B.m;
-    return C;
+template <typename S, int R, int C, int R2, int C2>
+Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B ) {
+    Matrix<S, R, C2> P;
+    *P.m = *A.m * *B.m;
+    return P;
 }
 
 } // namespace EigenWrapper

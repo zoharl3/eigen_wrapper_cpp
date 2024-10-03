@@ -8,6 +8,8 @@ file( GLOB sources *.cpp *.h )
 
 add_executable( ${PROJECT_NAME} ${sources} )
 
+set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17 )
+
 # Eigen (Tuxfamily)
 find_package(Eigen3)
 MESSAGE(STATUS "Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")

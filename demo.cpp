@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-//#define USE_EIGEN_WRAPPER
+#define USE_EIGEN_WRAPPER
 #ifdef USE_EIGEN_WRAPPER
     #include "eigen_wrapper.h"
     namespace Eigen = EigenWrapper;
@@ -12,15 +12,15 @@
 using namespace std;
 
 int main() {
-    Eigen::Matrix<double, -1, -1> x;
-    x.resize( 2, 1 );
-    x.setZero();
-    cout << x << endl;
+    Eigen::MatrixXd X;
+    X.resize( 2, 3 );
+    X.setZero();
+    cout << X << endl;
 
-    Eigen::Matrix<double, 2, -1> v2;
-    Eigen::Matrix<double, 3, 3> m3;
+    Eigen::Vector2d v2;
+    Eigen::Matrix3d m3;
 
-    Eigen::Matrix<double, 4, 4> m;
+    Eigen::Matrix4d m;
     m.setConstant( 0.5 );
     //m = m * m * m * m * m; // m^5
     m = m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m; // m^50

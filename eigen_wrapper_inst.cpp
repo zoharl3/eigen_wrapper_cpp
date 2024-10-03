@@ -8,7 +8,7 @@ using namespace std;
 namespace EigenWrapper {
 
 template struct Matrix<double, -1, -1>;
-template struct Matrix<double, 2, -1>;
+template struct Matrix<double, 2, 1>;
 template struct Matrix<double, 3, 3>;
 template struct Matrix<double, 4, 4>;
 
