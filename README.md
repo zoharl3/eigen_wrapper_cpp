@@ -49,8 +49,5 @@ When commenting out the `#define USE_EIGEN_WRAPPER`, it compiles 7sec in debug, 
 
 Adding methods is easy enough. However, I'd like to automate it by extracting the public interface of a class (all public functions), and create the necessary code with a script.
 
-For an initial discussion and suggestions, use:
-
-https://www.reddit.com/r/cpp/comments/1fv3k6w
 
 
