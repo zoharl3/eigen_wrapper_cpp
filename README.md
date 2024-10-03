@@ -1,3 +1,4 @@
+
 # eigen_wrapper
 A wrapper around the [Eigen](https://eigen.tuxfamily.org/)  library to reduce C++ compilation time.
 
@@ -50,5 +51,6 @@ Adding methods is easy enough. However, I'd like to automate it by extracting th
 
 For an initial discussion and suggestions, use:
 
+https://www.reddit.com/r/cpp/comments/1fv3k6w
 
 
