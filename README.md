@@ -12,7 +12,7 @@ This wrapper is a proof of concept, and I'll add to it functionality when I need
 
 `demo.cpp`
 
-```
+```cpp
 #include <iostream>
 
 #define USE_EIGEN_WRAPPER
