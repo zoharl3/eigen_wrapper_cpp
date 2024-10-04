@@ -9,33 +9,81 @@ namespace EigenWrapper {
 
 const int Dynamic = -1;
 
-#ifndef MATRIX_POINTER_TYPE
-#define MATRIX_POINTER_TYPE void *
+#ifndef MATRIX_TYPE
+#define MATRIX_TYPE void
+#define MATRIX_REF_TYPE void
 #endif
 
-template <typename S, int R, int C>
+template <class S, int R, int C>
 struct Matrix {
+    using M = Matrix<S, R, C>;
+
     Matrix();
-    Matrix( Matrix<S, R, C> &A );
+    Matrix( const M &A );
     ~Matrix();
 
     void setZero();
+    void setOnes();
+    void setIdentity();
     void setConstant( const S& s );
     void resize( int r, int c );
+    void resize( int n );
+    void conservativeResize( int n );
     void conservativeResize(int r, int c);
 
-    Matrix<S, R, C>& operator=( const Matrix<S, R, C> &A ); 
+    void conservativeResizeLike( const M &A );
+
+    int size();
+    int rows();
+    int cols();
+
+    S determinant();
+    S norm();
+
+    M inverse();
+    M transpose();
+    M normalized();
+    M reshaped( int r, int c );
+
+    Matrix<S, 3, 1> cross( const Matrix<S, 3, 1> &v );
+
+    M cwiseMax( const M &A );
+
+    M col( int n );
+    M row( int n );
+    M head(int n);
+    M tail(int n);
+
+    S &operator()( int n );
+    S &operator()( int r, int c );
+
+    M& operator=( const M &A ); 
+
+    // static
+    static M Ones( int r, int c );
+    static M Zero( int n );
 
     // friends
-    template <typename S, int R, int C>
-    friend std::ostream &operator<<( std::ostream &os, const Matrix<S, R, C> &mat );
+    template <class S, int R, int C>
+    friend std::ostream &operator<<( std::ostream &os, const M &mat );
 
-    template <typename S, int R, int C, int R2, int C2>
-    friend Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
+    template <class S, int R, int C, int R2, int C2, int R3, int C3>
+    friend Matrix<S, R3, C3> operator*( const M &A, const Matrix<S, R2, C2> &B );
 
 private:
-    MATRIX_POINTER_TYPE m; // inner matrix; must be a pointer; can't use unique_ptr, which requires a known type
+    MATRIX_REF_TYPE *m(); // return ref
+
+    template <class E>
+    static M make_mat( const E &e ); // make matrix from eigen type
+
+    template <class E>
+    static M make_ref( const E &e ); // make ref(-only) matrix from eigen type
+
+    MATRIX_TYPE *mat; // may remain null
+    MATRIX_REF_TYPE *ref; // may have only a ref
 };
+
+typedef std::ptrdiff_t Index;
 
 #include "eigen_typedefs.h"
 

@@ -1,9 +1,13 @@
 
 // instantiation
 
-#include "eigen_wrapper_impl.h"
+// warning C4244: 'initializing': conversion from 'double' to 'int', possible
+// loss of data
+#pragma warning(disable : 4244)
 
-using namespace std;
+#include <iostream>
+
+#include "eigen_wrapper_impl.h"
 
 namespace EigenWrapper {
 
@@ -18,6 +22,9 @@ template std::ostream &operator<<( std::ostream &os, const Matrix<double, 4, 4> 
 
 template Matrix<double, 4, 4> operator*( const Matrix<double, 4, 4> &A, const Matrix<double, 4, 4> &B );
 
-}
+} // namespace EigenWrapper
+
+
+
 
 

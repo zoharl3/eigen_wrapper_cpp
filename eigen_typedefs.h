@@ -1,4 +1,6 @@
 
+// copied from Matrix.h
+
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
 /** \ingroup matrixtypedefs */                                    \
 typedef Matrix<Type, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
