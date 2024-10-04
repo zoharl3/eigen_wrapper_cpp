@@ -19,10 +19,18 @@ Matrix<S, R, C>::Matrix() {
 }
 
 template <class S, int R, int C>
-Matrix<S, R, C>::Matrix( const Matrix<S, R, C> &A ) {
+Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
+    mat = nullptr;
     ref = nullptr;
-    mat = new Eigen::Matrix<S, R, C>( *A.m() );
-    update_ref();
+
+    if ( A.mat ) {
+        mat = new Eigen::Matrix<S, R, C>( *A.mat );
+        update_ref();
+    } else {
+        // transfer ref for head(); need to used shared_ptr instead
+        ref = A.ref;
+        A.ref = nullptr;
+    }
 }
 
 template <class S, int R, int C>
@@ -241,14 +249,24 @@ Matrix<S, R, 1> Matrix<S, R, C>::tail( int n ) {
 
 template <class S, int R, int C>
 S& Matrix<S, R, C>::operator()( int n ) {
-    assert( mat );
-    return mat->operator()( n );
+    if constexpr ( C == 1 )
+        return ref->operator()( n );
+    else {
+        assert( 0 );
+        static S s;
+        return s;
+    }
 }
 
 template <class S, int R, int C>
 S& Matrix<S, R, C>::operator()( int r, int c ) {
-    assert( mat );
-    return mat->operator()( r, c );
+    if constexpr ( C != 1 )
+        return ref->operator()( r, c );
+    else {
+        assert( 0 );
+        static S s;
+        return s;
+    }
 }
 
 template <class S, int R, int C>

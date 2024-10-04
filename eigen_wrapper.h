@@ -19,7 +19,7 @@ struct Matrix {
     using M = Matrix<S, R, C>;
 
     Matrix();
-    Matrix( const M &A );
+    Matrix( M &A );
     ~Matrix();
 
     void setZero();
