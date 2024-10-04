@@ -20,8 +20,9 @@ Matrix<S, R, C>::Matrix() {
 
 template <class S, int R, int C>
 Matrix<S, R, C>::Matrix( const Matrix<S, R, C> &A ) {
+    ref = nullptr;
     mat = new Eigen::Matrix<S, R, C>( *A.m() );
-    ref = new Eigen::Ref<Eigen::Matrix<S, R, C>>( *mat );
+    update_ref();
 }
 
 template <class S, int R, int C>
@@ -31,28 +32,47 @@ Matrix<S, R, C>::~Matrix() {
 }
 
 template <class S, int R, int C>
+void Matrix<S, R, C>::update_ref() {
+    delete ref;
+    ref = new Eigen::Ref<Eigen::Matrix<S, R, C>>( *mat );
+}
+
+template <class S, int R, int C>
 template <class E>
 Matrix<S, R, C> Matrix<S, R, C>::make_mat( const E &e ) {
     Matrix<S, R, C> P;
     P.mat = new Eigen::Matrix<S, R, C>( e );
-    P.ref = new Eigen::Ref<Eigen::Matrix<S, R, C>>( *P.mat );
+    P.update_ref();
     return P;
 }
 
 template <class S, int R, int C>
 template <class E>
-Matrix<S, R, C> Matrix<S, R, C>::make_ref( const E &e ) {
-    Matrix<S, R, C> P;
-    P.ref = new Eigen::Ref<Eigen::Matrix<S, R, C>>( e );
+Matrix<S, R, 1> Matrix<S, R, C>::make_col_ref( E &e ) {
+    Matrix<S, R, 1> P;
+    P.ref = new Eigen::Ref<Eigen::Matrix<S, R, 1>>( e );
+    return P;
+}
+
+template <class S, int R, int C>
+template <class E>
+Matrix<S, 1, C> Matrix<S, R, C>::make_row_ref( E &e ) {
+    Matrix<S, 1, C> P;
+    P.ref = new Eigen::Ref<Eigen::Matrix<S, 1, C>>( e );
     return P;
 }
 
 template <class S, int R, int C>
 MATRIX_REF_TYPE *Matrix<S, R, C>::m() {
     if ( !ref ) {
-        m = new Eigen::Matrix<S, R, C>();
-        ref = new Eigen::Ref<Eigen::Matrix<S, R, C>>( *mat );
+        mat = new Eigen::Matrix<S, R, C>();
+        update_ref();
     }
+    return ref;
+}
+
+template <class S, int R, int C>
+MATRIX_REF_TYPE *Matrix<S, R, C>::m() const {
     return ref;
 }
 
@@ -78,42 +98,55 @@ void Matrix<S, R, C>::setConstant( const S &s ) {
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::resize( int r, int c ) {
-    if constexpr ( C == -1 )
-        m()->resize( r, c );
-    else
+    m(); // create if needed
+    assert( mat );
+    if constexpr ( C == -1 ) {
+        mat->resize( r, c );
+        update_ref();
+    } else
         assert(0);
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::resize( int n ) {
-    if constexpr ( R == -1 && C == 1 )
-        m()->resize( n );
-    else
+    m();
+    assert( mat );
+    if constexpr ( R == -1 && C == 1 ) {
+        mat->resize( n );
+        update_ref();
+    } else
         assert(0);
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::conservativeResize( int n ) {
+    m();
     assert( mat );
-    if constexpr ( R == -1 && C == 1 )
+    if constexpr ( R == -1 && C == 1 ) {
         mat->conservativeResize( n );
-    else
+        update_ref();
+    } else
         assert( 0 );
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::conservativeResize( int r, int c ) {
     assert( mat );
-    if constexpr ( C == -1 )
+    if constexpr ( C == -1 ) {
         mat->conservativeResize( r, c );
-    else
+        update_ref();
+    } else
         assert( 0 );
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::conservativeResizeLike( const Matrix<S, R, C> &A ) {
     assert( mat );
-    mat->conservativeResizeLike( *A.m() );
+    if constexpr ( C == -1 ) {
+        mat->conservativeResizeLike( *A.m() );
+        update_ref();
+    } else
+        assert( 0 );
 }
 
 template <class S, int R, int C>
@@ -173,37 +206,49 @@ Matrix<S, 3, 1> Matrix<S, R, C>::cross( const Matrix<S, 3, 1> &v ) {
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::cwiseMax( const Matrix<S, R, C> &A ) {
-    return make_mat( m()->cwiseMax( A ) );
+    return make_mat( m()->cwiseMax( *A.m() ) );
 }
 
 template <class S, int R, int C>
-Matrix<S, R, C> Matrix<S, R, C>::col( int n ) {
-    return make_ref( m()->col( n ) );
+Matrix<S, R, 1> Matrix<S, R, C>::col( int n ) {
+    return make_col_ref( m()->col( n ) );
+}
+
+// template <class S, int R, int C>
+// Matrix<S, 1, C> Matrix<S, R, C>::row( int n ) {
+//     return make_row_ref( m()->row( n ) );
+// }
+
+template <class S, int R, int C>
+Matrix<S, R, 1> Matrix<S, R, C>::head( int n ) {
+    if constexpr ( C == 1 )
+        return make_col_ref( m()->head( n ) );
+    else {
+        assert( 0 );
+        return Matrix<S, R, 1>();
+    }
 }
 
 template <class S, int R, int C>
-Matrix<S, R, C> Matrix<S, R, C>::row( int n ) {
-    return make_ref( m()->row( n ) );
-}
-
-template <class S, int R, int C>
-Matrix<S, R, C> Matrix<S, R, C>::head( int n ) {
-    return make_ref( m()->head( n ) );
-}
-
-template <class S, int R, int C>
-Matrix<S, R, C> Matrix<S, R, C>::tail( int n ) {
-    return make_ref( m()->tail( n ) );
+Matrix<S, R, 1> Matrix<S, R, C>::tail( int n ) {
+    if constexpr ( C == 1 )
+        return make_col_ref( m()->tail( n ) );
+    else {
+        assert( 0 );
+        return Matrix<S, R, 1>();
+    }
 }
 
 template <class S, int R, int C>
 S& Matrix<S, R, C>::operator()( int n ) {
-    return ( *m() )( n );
+    assert( mat );
+    return mat->operator()( n );
 }
 
 template <class S, int R, int C>
 S& Matrix<S, R, C>::operator()( int r, int c ) {
-    return ( *m() )( r, c );
+    assert( mat );
+    return mat->operator()( r, c );
 }
 
 template <class S, int R, int C>
@@ -230,13 +275,13 @@ Matrix<S, R, C> Matrix<S, R, C>::Zero(int n) {
 
 // friends
 template <class S, int R, int C>
-std::ostream &operator<<( std::ostream &os, const Matrix<S, R, C> &mat ) {
+std::ostream& operator<<( std::ostream &os, const Matrix<S, R, C> &mat ) {
     os << *mat.m();
     return os;
 }
 
-template <class S, int R, int C, int R2, int C2, int R3, int C3>
-Matrix<S, R3, C3> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B ) {
+template <class S, int R, int C, int R2, int C2>
+Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B ) {
     Matrix<S, R, C2> P;
     *P.m() = *A.m() * *B.m();
     return P;

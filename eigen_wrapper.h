@@ -49,10 +49,10 @@ struct Matrix {
 
     M cwiseMax( const M &A );
 
-    M col( int n );
-    M row( int n );
-    M head(int n);
-    M tail(int n);
+    Matrix<S, R, 1> col( int n );
+    //Matrix<S, 1, C> row( int n );
+    Matrix<S, R, 1> head( int n );
+    Matrix<S, R, 1> tail( int n );
 
     S &operator()( int n );
     S &operator()( int r, int c );
@@ -65,19 +65,25 @@ struct Matrix {
 
     // friends
     template <class S, int R, int C>
-    friend std::ostream &operator<<( std::ostream &os, const M &mat );
+    friend std::ostream &operator<<( std::ostream &os, const Matrix<S, R, C> &mat );
 
-    template <class S, int R, int C, int R2, int C2, int R3, int C3>
-    friend Matrix<S, R3, C3> operator*( const M &A, const Matrix<S, R2, C2> &B );
+    template <class S, int R, int C, int R2, int C2>
+    friend Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
 
-private:
-    MATRIX_REF_TYPE *m(); // return ref
+//private:
+    MATRIX_REF_TYPE *m(); // returns ref
+    MATRIX_REF_TYPE *m() const;
+
+    void update_ref();
 
     template <class E>
     static M make_mat( const E &e ); // make matrix from eigen type
 
     template <class E>
-    static M make_ref( const E &e ); // make ref(-only) matrix from eigen type
+    Matrix<S, R, 1> make_col_ref( E &e ); // make ref(-only) matrix from eigen type
+
+    template <class E>
+    Matrix<S, 1, C> make_row_ref( E &e );
 
     MATRIX_TYPE *mat; // may remain null
     MATRIX_REF_TYPE *ref; // may have only a ref
