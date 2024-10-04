@@ -22,6 +22,8 @@ struct Matrix {
     Matrix( M &A );
     ~Matrix();
 
+    void init();
+
     void setZero();
     void setOnes();
     void setIdentity();
@@ -70,7 +72,7 @@ struct Matrix {
     template <class S, int R, int C, int R2, int C2>
     friend Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
 
-//private:
+private:
     MATRIX_REF_TYPE *m(); // returns ref
     MATRIX_REF_TYPE *m() const;
 
@@ -79,14 +81,16 @@ struct Matrix {
     template <class E>
     static M make_mat( const E &e ); // make matrix from eigen type
 
-    template <class E>
-    Matrix<S, R, 1> make_col_ref( E &e ); // make ref(-only) matrix from eigen type
+    template <class S, int R, class E>
+    friend Matrix<S, R, 1> make_col_ref( E &e ); // make ref(-only) matrix from eigen type; different template parameters (C=1) means a different class
 
-    template <class E>
-    Matrix<S, 1, C> make_row_ref( E &e );
+    template <class S, int C, class E>
+    friend Matrix<S, 1, C> make_row_ref( E &e );
 
     MATRIX_TYPE *mat; // may remain null
     MATRIX_REF_TYPE *ref; // may have only a ref
+
+    bool dying; // if it's a temporary (local) object that is about to be deleted
 };
 
 typedef std::ptrdiff_t Index;

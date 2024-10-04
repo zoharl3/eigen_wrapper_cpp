@@ -5,8 +5,10 @@
 
 #include <Eigen/Dense>
 
-#define MATRIX_TYPE Eigen::Matrix<S, R, C>
-#define MATRIX_REF_TYPE Eigen::Ref<Eigen::Matrix<S, R, C>>
+namespace srcEigen = Eigen;
+
+#define MATRIX_TYPE srcEigen::Matrix<S, R, C>
+#define MATRIX_REF_TYPE srcEigen::Ref<srcEigen::Matrix<S, R, C>>
 
 #include "eigen_wrapper.h"
 
@@ -14,20 +16,19 @@ namespace EigenWrapper {
 
 template <class S, int R, int C>
 Matrix<S, R, C>::Matrix() {
-    mat = nullptr;
-    ref = nullptr;
+    init();
 }
 
 template <class S, int R, int C>
 Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
-    mat = nullptr;
-    ref = nullptr;
+    init();
 
-    if ( A.mat ) {
-        mat = new Eigen::Matrix<S, R, C>( *A.mat );
+    if ( A.mat || !A.dying ) {
+        mat = new srcEigen::Matrix<S, R, C>( *A.mat );
         update_ref();
+
     } else {
-        // transfer ref for head(); need to used shared_ptr instead
+        // transfer ref for make_col_ref() and head(), which return a temporary object that is copied; it should be the same ref that points to the original matrix
         ref = A.ref;
         A.ref = nullptr;
     }
@@ -40,40 +41,46 @@ Matrix<S, R, C>::~Matrix() {
 }
 
 template <class S, int R, int C>
+void Matrix<S, R, C>::init() {
+    mat = nullptr;
+    ref = nullptr;
+    dying = false;
+}
+
+template <class S, int R, int C>
 void Matrix<S, R, C>::update_ref() {
     delete ref;
-    ref = new Eigen::Ref<Eigen::Matrix<S, R, C>>( *mat );
+    ref = new srcEigen::Ref<srcEigen::Matrix<S, R, C>>( *mat );
 }
 
 template <class S, int R, int C>
 template <class E>
 Matrix<S, R, C> Matrix<S, R, C>::make_mat( const E &e ) {
     Matrix<S, R, C> P;
-    P.mat = new Eigen::Matrix<S, R, C>( e );
+    P.mat = new srcEigen::Matrix<S, R, C>( e );
     P.update_ref();
     return P;
 }
 
-template <class S, int R, int C>
-template <class E>
-Matrix<S, R, 1> Matrix<S, R, C>::make_col_ref( E &e ) {
+template <class S, int R, class E>
+Matrix<S, R, 1> make_col_ref( E &e ) {
     Matrix<S, R, 1> P;
-    P.ref = new Eigen::Ref<Eigen::Matrix<S, R, 1>>( e );
+    P.ref = new srcEigen::Ref<srcEigen::Matrix<S, R, 1>>( e );
+    P.dying = true;
     return P;
 }
 
-template <class S, int R, int C>
-template <class E>
-Matrix<S, 1, C> Matrix<S, R, C>::make_row_ref( E &e ) {
+template <class S, int C, class E>
+Matrix<S, 1, C> make_row_ref( E &e ) {
     Matrix<S, 1, C> P;
-    P.ref = new Eigen::Ref<Eigen::Matrix<S, 1, C>>( e );
+    P.ref = new srcEigen::Ref<srcEigen::Matrix<S, 1, C>>( e );
     return P;
 }
 
 template <class S, int R, int C>
 MATRIX_REF_TYPE *Matrix<S, R, C>::m() {
     if ( !ref ) {
-        mat = new Eigen::Matrix<S, R, C>();
+        mat = new srcEigen::Matrix<S, R, C>();
         update_ref();
     }
     return ref;
@@ -219,7 +226,7 @@ Matrix<S, R, C> Matrix<S, R, C>::cwiseMax( const Matrix<S, R, C> &A ) {
 
 template <class S, int R, int C>
 Matrix<S, R, 1> Matrix<S, R, C>::col( int n ) {
-    return make_col_ref( m()->col( n ) );
+    return make_col_ref<S, R>( m()->col( n ) );
 }
 
 // template <class S, int R, int C>
@@ -230,7 +237,7 @@ Matrix<S, R, 1> Matrix<S, R, C>::col( int n ) {
 template <class S, int R, int C>
 Matrix<S, R, 1> Matrix<S, R, C>::head( int n ) {
     if constexpr ( C == 1 )
-        return make_col_ref( m()->head( n ) );
+        return make_col_ref<S, R>( m()->head( n ) );
     else {
         assert( 0 );
         return Matrix<S, R, 1>();
@@ -240,7 +247,7 @@ Matrix<S, R, 1> Matrix<S, R, C>::head( int n ) {
 template <class S, int R, int C>
 Matrix<S, R, 1> Matrix<S, R, C>::tail( int n ) {
     if constexpr ( C == 1 )
-        return make_col_ref( m()->tail( n ) );
+        return make_col_ref<S, R>( m()->tail( n ) );
     else {
         assert( 0 );
         return Matrix<S, R, 1>();
@@ -278,13 +285,13 @@ Matrix<S, R, C>& Matrix<S, R, C>::operator=( const Matrix<S, R, C> &A ) {
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::Ones( int r, int c ) {
-    return make_mat( Eigen::Matrix<S, R, C>::Ones( r, c ) );
+    return make_mat( srcEigen::Matrix<S, R, C>::Ones( r, c ) );
 }
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::Zero(int n) {
     if constexpr ( C == 1 )
-        return make_mat( Eigen::Matrix<S, R, C>::Zero( n ) );
+        return make_mat( srcEigen::Matrix<S, R, C>::Zero( n ) );
     else {
         assert(0);
         return Matrix<S, R, C>();
