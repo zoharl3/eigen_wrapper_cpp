@@ -30,6 +30,9 @@ template std::ostream &operator<<( std::ostream &os, const Matrix<double, 3, 1> 
 
 template Matrix<double, 3, 3> operator*( const Matrix<double, 3, 3> &A, const Matrix<double, 3, 3> &B );
 
+template Matrix<double, 3, 1> operator+( const Matrix<double, 3, 1> &A, const Matrix<double, 3, 1> &B );
+template Matrix<double, 3, 1> operator+( const Matrix<double, 3, 1> &A, const Matrix<double, -1, 1> &B );
+
 // conversion 'ctor
 template Matrix<double, 3, 1>::Matrix( Matrix<double, -1, 1> &A );
 

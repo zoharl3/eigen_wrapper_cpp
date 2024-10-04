@@ -83,6 +83,9 @@ struct Matrix {
     template <class S, int R, int C, int R2, int C2>
     friend Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
 
+    template <class S, int R, int C, int R2, int C2>
+    friend Matrix<S, R, C> operator+( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
+
 //private: // complicates matter--need to give friend access
     MATRIX_REF_TYPE *m(); // returns ref
     MATRIX_REF_TYPE *m() const;

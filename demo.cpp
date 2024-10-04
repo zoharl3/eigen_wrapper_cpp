@@ -12,21 +12,25 @@
 using namespace std;
 
 int main() {
-    Eigen::VectorXd mx;
-    mx.resize( 4 );
-    mx.setZero();
-    mx( 0 ) = 5;
-    mx.conservativeResize( 3 );
-    mx.head( 2 )( 1 ) = 2;
-    Eigen::Vector3d v3 = mx;
+    Eigen::VectorXd vx;
+    vx.resize( 4 );
+    vx.setZero();
+    vx( 0 ) = 5;
+    vx.conservativeResize( 3 );
+    vx.head( 2 )( 1 ) = 2;
+
+    Eigen::Matrix3d mx;
+    mx.setIdentity();
+    Eigen::Vector3d v3 = mx.col( 1 );
+    v3 = v3 + vx;
     cout << v3 << endl;
 
     Eigen::Matrix3d m, m3;
     m3.setConstant( 0.5 );
     m = -m3;
     //m = m * m; // m^2
-    m = m * m * m * m * m; // m^5
-    //m = m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m; // m^50
+    //m = m * m * m * m * m; // m^5
+    m = m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m; // m^50
     cout << m << endl;
 
     return 0;
