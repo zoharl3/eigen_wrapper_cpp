@@ -19,7 +19,12 @@ struct Matrix {
     using M = Matrix<S, R, C>;
 
     Matrix();
+
+    template <int R2, int C2>
+    Matrix( Matrix<S, R2, C2> &A );
+
     Matrix( M &A );
+
     ~Matrix();
 
     void init();
@@ -50,6 +55,7 @@ struct Matrix {
     Matrix<S, 3, 1> cross( const Matrix<S, 3, 1> &v );
 
     M cwiseMax( const M &A );
+    M cwiseMin( const M &A );
 
     Matrix<S, R, 1> col( int n );
     //Matrix<S, 1, C> row( int n );
@@ -59,7 +65,12 @@ struct Matrix {
     S &operator()( int n );
     S &operator()( int r, int c );
 
-    M& operator=( const M &A ); 
+    template <int R2, int C2>
+    M &operator=( const Matrix<S, R2, C2> &A );
+
+    M &operator=( const Matrix<S, R, C> &A ); // need both
+
+    M &operator-();
 
     // static
     static M Ones( int r, int c );
@@ -72,7 +83,7 @@ struct Matrix {
     template <class S, int R, int C, int R2, int C2>
     friend Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
 
-private:
+//private: // complicates matter--need to give friend access
     MATRIX_REF_TYPE *m(); // returns ref
     MATRIX_REF_TYPE *m() const;
 

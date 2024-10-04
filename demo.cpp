@@ -12,20 +12,21 @@
 using namespace std;
 
 int main() {
-    Eigen::VectorXd x;
-    x.resize( 4 );
-    x.setZero();
-    x( 0 ) = 5;
-    x.conservativeResize( 3 );
-    x.head( 2 )( 1 ) = 2;
-    cout << x << endl;
+    Eigen::VectorXd mx;
+    mx.resize( 4 );
+    mx.setZero();
+    mx( 0 ) = 5;
+    mx.conservativeResize( 3 );
+    mx.head( 2 )( 1 ) = 2;
+    Eigen::Vector3d v3 = mx;
+    cout << v3 << endl;
 
-    Eigen::Matrix4d m, m4;
-    m4.setConstant( 0.5 );
-    m = m4;
+    Eigen::Matrix3d m, m3;
+    m3.setConstant( 0.5 );
+    m = -m3;
     //m = m * m; // m^2
-    //m = m * m * m * m * m; // m^5
-    m = m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m; // m^50
+    m = m * m * m * m * m; // m^5
+    //m = m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m; // m^50
     cout << m << endl;
 
     return 0;

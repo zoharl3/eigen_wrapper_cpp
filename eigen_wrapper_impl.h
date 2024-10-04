@@ -20,15 +20,31 @@ Matrix<S, R, C>::Matrix() {
 }
 
 template <class S, int R, int C>
+template <int R2, int C2>
+Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &A ) {
+    init();
+
+    if ( A.mat || !A.dying || R != R2 || C != C2 ) {
+        mat = new srcEigen::Matrix<S, R, C>( *A.mat );
+        update_ref();
+    } else {
+        // transfer ref for make_col_ref() and head(), which return a temporary object that is copied; it should be the same ref that points to the original matrix
+        if constexpr ( R == R2 && C == C2 ) {
+            ref = A.ref;
+            A.ref = nullptr;
+        }
+    }
+}
+
+template <class S, int R, int C>
 Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
     init();
 
     if ( A.mat || !A.dying ) {
         mat = new srcEigen::Matrix<S, R, C>( *A.mat );
         update_ref();
-
     } else {
-        // transfer ref for make_col_ref() and head(), which return a temporary object that is copied; it should be the same ref that points to the original matrix
+
         ref = A.ref;
         A.ref = nullptr;
     }
@@ -37,7 +53,9 @@ Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
 template <class S, int R, int C>
 Matrix<S, R, C>::~Matrix() {
     delete mat;
+    mat = nullptr;
     delete ref;
+    ref = nullptr;
 }
 
 template <class S, int R, int C>
@@ -191,7 +209,12 @@ S Matrix<S, R, C>::norm() {
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::inverse() {
-    return make_mat( m()->inverse() );
+    if constexpr ( R == C )
+        return make_mat( m()->inverse() );
+    else {
+        assert( 0 );
+        return Matrix<S, R, C>();
+    }
 }
 
 template <class S, int R, int C>
@@ -212,7 +235,7 @@ Matrix<S, R, C> Matrix<S, R, C>::reshaped( int r, int c ) {
 template <class S, int R, int C>
 Matrix<S, 3, 1> Matrix<S, R, C>::cross( const Matrix<S, 3, 1> &v ) {
     if constexpr ( R == 3 && C == 1 )
-        return make_mat( m()->cross( v ) );
+        return make_mat( m()->cross( *v.m() ) );
     else {
         assert( 0 );
         return Matrix<S, 3, 1>();
@@ -222,6 +245,11 @@ Matrix<S, 3, 1> Matrix<S, R, C>::cross( const Matrix<S, 3, 1> &v ) {
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::cwiseMax( const Matrix<S, R, C> &A ) {
     return make_mat( m()->cwiseMax( *A.m() ) );
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C> Matrix<S, R, C>::cwiseMin( const Matrix<S, R, C> &A ) {
+    return make_mat( m()->cwiseMin( *A.m() ) );
 }
 
 template <class S, int R, int C>
@@ -236,9 +264,11 @@ Matrix<S, R, 1> Matrix<S, R, C>::col( int n ) {
 
 template <class S, int R, int C>
 Matrix<S, R, 1> Matrix<S, R, C>::head( int n ) {
-    if constexpr ( C == 1 )
-        return make_col_ref<S, R>( m()->head( n ) );
-    else {
+    if constexpr ( C == 1 ) {
+        Matrix<S, R, 1> P( make_col_ref<S, R>( m()->head( n ) ) );
+        P.dying = true;
+        return P;
+    } else {
         assert( 0 );
         return Matrix<S, R, 1>();
     }
@@ -277,9 +307,21 @@ S& Matrix<S, R, C>::operator()( int r, int c ) {
 }
 
 template <class S, int R, int C>
-//template <int R2, int C2>
-Matrix<S, R, C>& Matrix<S, R, C>::operator=( const Matrix<S, R, C> &A ) {
+template <int R2, int C2>
+Matrix<S, R, C>& Matrix<S, R, C>::operator=( const Matrix<S, R2, C2> &A ) {
     *m() = *A.m();
+    return *this;
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C> &Matrix<S, R, C>::operator=( const Matrix<S, R, C> &A ) {
+    *m() = *A.m();
+    return *this;
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C> &Matrix<S, R, C>::operator-() {
+    *m() = -*m();
     return *this;
 }
 
@@ -301,7 +343,8 @@ Matrix<S, R, C> Matrix<S, R, C>::Zero(int n) {
 // friends
 template <class S, int R, int C>
 std::ostream& operator<<( std::ostream &os, const Matrix<S, R, C> &mat ) {
-    os << *mat.m();
+    if ( mat.m() )
+        os << *mat.m();
     return os;
 }
 
