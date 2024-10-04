@@ -19,7 +19,8 @@ int main() {
     vx.conservativeResize( 3 );
     vx.head( 2 )( 1 ) = 2;
 
-    Eigen::Matrix3d mx;
+    Eigen::MatrixXd mx;
+    mx.resize( 3, 3 );
     mx.setIdentity();
     Eigen::Vector3d v3 = mx.col( 1 );
     v3 = v3 + vx;

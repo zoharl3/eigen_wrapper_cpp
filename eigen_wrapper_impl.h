@@ -25,7 +25,7 @@ Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &A ) {
     init();
 
     if ( A.mat || !A.dying || R != R2 || C != C2 ) {
-        mat = new srcEigen::Matrix<S, R, C>( *A.mat );
+        mat = new srcEigen::Matrix<S, R, C>( *A.m() );
         update_ref();
     } else {
         // transfer ref for make_col_ref() and head(), which return a temporary object that is copied; it should be the same ref that points to the original matrix
@@ -41,10 +41,9 @@ Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
     init();
 
     if ( A.mat || !A.dying ) {
-        mat = new srcEigen::Matrix<S, R, C>( *A.mat );
+        mat = new srcEigen::Matrix<S, R, C>( *A.m() );
         update_ref();
     } else {
-
         ref = A.ref;
         A.ref = nullptr;
     }
