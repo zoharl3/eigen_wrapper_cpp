@@ -1,6 +1,8 @@
 
 // instantiation
 
+#include "stdafx.h"
+
 // warning C4244: 'initializing': conversion from 'double' to 'int', possible
 // loss of data
 #pragma warning(disable : 4244)
@@ -32,6 +34,9 @@ template Matrix<double, 3, 3> operator*( const Matrix<double, 3, 3> &A, const Ma
 
 template Matrix<double, 3, 1> operator+( const Matrix<double, 3, 1> &A, const Matrix<double, 3, 1> &B );
 template Matrix<double, 3, 1> operator+( const Matrix<double, 3, 1> &A, const Matrix<double, -1, 1> &B );
+
+template Matrix<double, 3, 1> operator-( const Matrix<double, 3, 1> &A, const Matrix<double, 3, 1> &B );
+template Matrix<double, 3, 1> operator-( const Matrix<double, 3, 1> &A, const Matrix<double, -1, 1> &B );
 
 // conversion 'ctor
 template Matrix<double, 3, 1>::Matrix( Matrix<double, -1, 1> &A );

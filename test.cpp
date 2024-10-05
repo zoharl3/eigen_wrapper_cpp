@@ -1,4 +1,6 @@
 
+#include "stdafx.h"
+
 #include <iostream>
 
 #define USE_EIGEN_WRAPPER

@@ -207,6 +207,11 @@ S Matrix<S, R, C>::norm() {
 }
 
 template <class S, int R, int C>
+S Matrix<S, R, C>::squaredNorm() {
+    return m()->squaredNorm();
+}
+
+template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::inverse() {
     if constexpr ( R == C )
         return make_mat( m()->inverse() );
@@ -360,6 +365,13 @@ template <class S, int R, int C, int R2, int C2>
 Matrix<S, R, C> operator+( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B ) {
     Matrix<S, R, C2> P;
     *P.m() = *A.m() + *B.m();
+    return P;
+}
+
+template <class S, int R, int C, int R2, int C2>
+Matrix<S, R, C> operator-( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B ) {
+    Matrix<S, R, C2> P;
+    *P.m() = *A.m() - *B.m();
     return P;
 }
 
