@@ -3,7 +3,10 @@
 
 #pragma once
 
-#include <Eigen/Dense>
+//#include <Eigen/Dense>
+#include <Eigen/Core>
+#include <Eigen/LU>
+#include <Eigen/Geometry>
 
 namespace srcEigen = Eigen;
 
@@ -24,28 +27,24 @@ template <int R2, int C2>
 Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &A ) {
     init();
 
-    if ( A.mat || !A.dying || R != R2 || C != C2 ) {
+    mat = new srcEigen::Matrix<S, R, C>( *A.m() );
+    update_ref();
+}
+
+template <class S, int R, int C>
+template <int R2, int C2>
+Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &&A ) {
+    init();
+
+    if ( A.mat || R != R2 || C != C2 ) {
         mat = new srcEigen::Matrix<S, R, C>( *A.m() );
         update_ref();
     } else {
         // transfer ref for make_col_ref() and head(), which return a temporary object that is copied; it should be the same ref that points to the original matrix
         if constexpr ( R == R2 && C == C2 ) {
             ref = A.ref;
-            A.ref = nullptr;
+            A.ref = nullptr; // so its d'tor won't delete it
         }
-    }
-}
-
-template <class S, int R, int C>
-Matrix<S, R, C>::Matrix( Matrix<S, R, C> &A ) {
-    init();
-
-    if ( A.mat || !A.dying ) {
-        mat = new srcEigen::Matrix<S, R, C>( *A.m() );
-        update_ref();
-    } else {
-        ref = A.ref;
-        A.ref = nullptr;
     }
 }
 
@@ -61,7 +60,6 @@ template <class S, int R, int C>
 void Matrix<S, R, C>::init() {
     mat = nullptr;
     ref = nullptr;
-    dying = false;
 }
 
 template <class S, int R, int C>
@@ -80,10 +78,9 @@ Matrix<S, R, C> Matrix<S, R, C>::make_mat( const E &e ) {
 }
 
 template <class S, int R, class E>
-Matrix<S, R, 1> make_col_ref( E &e ) {
+Matrix<S, R, 1> make_col_ref( const E &e ) {
     Matrix<S, R, 1> P;
     P.ref = new srcEigen::Ref<srcEigen::Matrix<S, R, 1>>( e );
-    P.dying = true;
     return P;
 }
 
@@ -259,7 +256,6 @@ Matrix<S, R, C> Matrix<S, R, C>::cwiseMin( const Matrix<S, R, C> &A ) {
 template <class S, int R, int C>
 Matrix<S, R, 1> Matrix<S, R, C>::col( int n ) {
     Matrix<S, R, 1> P( make_col_ref<S, R>( m()->col( n ) ) );
-    P.dying = true;
     return P;
 }
 
@@ -272,7 +268,6 @@ template <class S, int R, int C>
 Matrix<S, R, 1> Matrix<S, R, C>::head( int n ) {
     if constexpr ( C == 1 ) {
         Matrix<S, R, 1> P( make_col_ref<S, R>( m()->head( n ) ) );
-        P.dying = true;
         return P;
     } else {
         assert( 0 );

@@ -8,15 +8,14 @@ file( GLOB sources *.cpp *.h )
 
 add_executable( ${PROJECT_NAME} ${sources} )
 
-set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17 )
-
 # Eigen (Tuxfamily)
 find_package(Eigen3)
 MESSAGE(STATUS "Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
 target_include_directories( ${PROJECT_NAME} PRIVATE ${EIGEN3_INCLUDE_DIR} )
 
-target_precompile_headers( ${PROJECT_NAME} PRIVATE stdafx.h )
+#target_precompile_headers( ${PROJECT_NAME} PRIVATE stdafx.h )
 
-# VS property
-set_property( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} )
+set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 26 )
+
+set_property( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} ) # VS property
 

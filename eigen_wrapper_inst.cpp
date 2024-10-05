@@ -40,6 +40,7 @@ template Matrix<double, 3, 1> operator-( const Matrix<double, 3, 1> &A, const Ma
 
 // conversion 'ctor
 template Matrix<double, 3, 1>::Matrix( Matrix<double, -1, 1> &A );
+template Matrix<double, 3, 1>::Matrix( Matrix<double, -1, 1> &&A );
 
 } // namespace EigenWrapper
 

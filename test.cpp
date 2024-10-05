@@ -25,6 +25,7 @@ int main() {
     mx.resize( 3, 3 );
     mx.setIdentity();
     Eigen::Vector3d v3 = mx.col( 1 );
+    Eigen::Vector3d u3 = vx;
     v3 = v3 + vx;
     cout << v3 << endl;
 
