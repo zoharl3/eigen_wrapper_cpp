@@ -12,6 +12,7 @@ namespace srcEigen = Eigen;
 
 #define MATRIX_TYPE srcEigen::Matrix<S, R, C>
 #define MATRIX_REF_TYPE srcEigen::Ref<srcEigen::Matrix<S, R, C>>
+#define COMMA_INIT_TYPE srcEigen::CommaInitializer<MATRIX_REF_TYPE>
 
 #include "eigen_wrapper.h"
 
@@ -27,8 +28,16 @@ template <int R2, int C2>
 Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &A ) {
     init();
 
-    mat = new srcEigen::Matrix<S, R, C>( *A.m() );
-    update_ref();
+    if ( A.com ) {
+        if constexpr ( R == R2 && C == C2 ) {
+            com = A.com;
+            A.com = nullptr; // so its d'tor won't delete it
+        } else
+            assert( 0 );
+    } else {
+        mat = new srcEigen::Matrix<S, R, C>( *A.m() );
+        update_ref();
+    }
 }
 
 template <class S, int R, int C>
@@ -36,7 +45,13 @@ template <int R2, int C2>
 Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &&A ) {
     init();
 
-    if ( A.mat || R != R2 || C != C2 ) {
+    if ( A.com ) {
+        if constexpr ( R == R2 && C == C2 ) {
+            com = A.com;
+            A.com = nullptr; // so its d'tor won't delete it
+        } else
+            assert( 0 );
+    } else if ( A.mat || R != R2 || C != C2 ) {
         mat = new srcEigen::Matrix<S, R, C>( *A.m() );
         update_ref();
     } else {
@@ -52,14 +67,19 @@ template <class S, int R, int C>
 Matrix<S, R, C>::~Matrix() {
     delete mat;
     mat = nullptr;
+
     delete ref;
     ref = nullptr;
+
+    delete com;
+    com = nullptr;
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::init() {
     mat = nullptr;
     ref = nullptr;
+    com = nullptr;
 }
 
 template <class S, int R, int C>
@@ -323,6 +343,19 @@ Matrix<S, R, C> &Matrix<S, R, C>::operator=( const Matrix<S, R, C> &A ) {
 template <class S, int R, int C>
 Matrix<S, R, C> &Matrix<S, R, C>::operator-() {
     *m() = -*m();
+    return *this;
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C> Matrix<S, R, C>::operator<<( const S &s ) {
+    Matrix<S, R, C> P;
+    P.com = new COMMA_INIT_TYPE( std::move( *m() << s ) );
+    return P;
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C> Matrix<S, R, C>::operator,( const S &s ) {
+    *com , s;
     return *this;
 }
 

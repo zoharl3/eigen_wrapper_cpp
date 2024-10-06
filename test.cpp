@@ -25,9 +25,10 @@ int main() {
     mx.resize( 3, 3 );
     mx.setIdentity();
     Eigen::Vector3d v3 = mx.col( 1 );
-    Eigen::Vector3d u3 = vx;
     v3 = v3 + vx;
-    cout << v3 << endl;
+    cout << "\nv3 =\n" << v3 << endl;
+    v3 << 1, 2, 3;
+    cout << "\nv3 =\n" << v3 << endl;
 
     Eigen::Matrix3d m, m3;
     m3.setConstant( 0.5 );
@@ -35,7 +36,7 @@ int main() {
     //m = m * m; // m^2
     //m = m * m * m * m * m; // m^5
     m = m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m * m; // m^50
-    cout << m << endl;
+    cout << "\nm =\n" << m << endl;
 
     return 0;
 }

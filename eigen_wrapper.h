@@ -12,6 +12,7 @@ const int Dynamic = -1;
 #ifndef MATRIX_TYPE
 #define MATRIX_TYPE void
 #define MATRIX_REF_TYPE void
+#define COMMA_INIT_TYPE void
 #endif
 
 template <class S, int R, int C>
@@ -73,6 +74,8 @@ struct Matrix {
     M &operator=( const Matrix<S, R, C> &A ); // need both
 
     M &operator-();
+    M operator<<( const S &s );
+    M operator,( const S &s );
 
     // static
     static M Ones( int r, int c );
@@ -108,6 +111,7 @@ struct Matrix {
 
     MATRIX_TYPE *mat; // may remain null
     MATRIX_REF_TYPE *ref; // may have only a ref
+    COMMA_INIT_TYPE *com;
 };
 
 typedef std::ptrdiff_t Index;
