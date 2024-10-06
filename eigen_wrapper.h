@@ -46,9 +46,14 @@ struct Matrix {
     int rows();
     int cols();
 
-    S determinant();
+    S* data();
+
+    S determinant()
+        requires( !std::is_integral<S>::value );
+
     S norm();
     S squaredNorm();
+    S dot( const M &A );
 
     M inverse();
     M transpose();
@@ -85,8 +90,8 @@ struct Matrix {
     template <class S, int R, int C>
     friend std::ostream &operator<<( std::ostream &os, const Matrix<S, R, C> &mat );
 
-    template <class S, int R, int C, int R2, int C2>
-    friend Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
+    template <class S, int R, int C, class S2, int R2, int C2>
+    friend Matrix<S, R, C2> operator*( const Matrix<S, R, C> &A, const Matrix<S2, R2, C2> &B );
 
     template <class S, int R, int C, int R2, int C2>
     friend Matrix<S, R, C> operator+( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );

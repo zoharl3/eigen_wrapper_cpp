@@ -214,7 +214,14 @@ int Matrix<S, R, C>::cols() {
 }
 
 template <class S, int R, int C>
-S Matrix<S, R, C>::determinant() {
+S *Matrix<S, R, C>::data() {
+    return m()->data();
+}
+
+template <class S, int R, int C>
+S Matrix<S, R, C>::determinant()
+    requires( !std::is_integral<S>::value )
+{
     return m()->determinant();
 }
 
@@ -229,8 +236,18 @@ S Matrix<S, R, C>::squaredNorm() {
 }
 
 template <class S, int R, int C>
+S Matrix<S, R, C>::dot( const M &A ) {
+    if constexpr ( C == 1 )
+        return m()->dot( *A.m() );
+    else {
+        assert( 0 );
+        return S();
+    }
+}
+
+template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::inverse() {
-    if constexpr ( R == C )
+    if constexpr ( R == C && std::is_floating_point_v<S> )
         return make_mat( m()->inverse() );
     else {
         assert( 0 );
@@ -382,8 +399,8 @@ std::ostream& operator<<( std::ostream &os, const Matrix<S, R, C> &mat ) {
     return os;
 }
 
-template <class S, int R, int C, int R2, int C2>
-Matrix<S, R, C> operator*( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B ) {
+template <class S, int R, int C, class S2, int R2, int C2>
+Matrix<S, R, C2> operator*( const Matrix<S, R, C> &A, const Matrix<S2, R2, C2> &B ) {
     Matrix<S, R, C2> P;
     *P.m() = *A.m() * *B.m();
     return P;

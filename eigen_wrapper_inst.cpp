@@ -7,40 +7,21 @@
 // loss of data
 #pragma warning(disable : 4244)
 
-#include <iostream>
-
 #include "eigen_wrapper_impl.h"
 
 namespace EigenWrapper {
 
-// matrices
-template struct Matrix<double, -1, -1>;
-template struct Matrix<double, 2, 2>;
-template struct Matrix<double, 3, 3>;
+#define INST_TYPE int
+#include "eigen_wrapper_inst.h"
+#undef INST_TYPE
 
-// vectors
-template struct Matrix<double, -1, 1>;
-template struct Matrix<double, 2, 1>;
-template struct Matrix<double, 3, 1>;
+#define INST_TYPE float
+#include "eigen_wrapper_inst.h"
+#undef INST_TYPE
 
-// friends
-template std::ostream &operator<<( std::ostream &os, const Matrix<double, -1, -1> &mat );
-template std::ostream &operator<<( std::ostream &os, const Matrix<double, 3, 3> &mat );
-
-template std::ostream &operator<<( std::ostream &os, const Matrix<double, -1, 1> &mat );
-template std::ostream &operator<<( std::ostream &os, const Matrix<double, 3, 1> &mat );
-
-template Matrix<double, 3, 3> operator*( const Matrix<double, 3, 3> &A, const Matrix<double, 3, 3> &B );
-
-template Matrix<double, 3, 1> operator+( const Matrix<double, 3, 1> &A, const Matrix<double, 3, 1> &B );
-template Matrix<double, 3, 1> operator+( const Matrix<double, 3, 1> &A, const Matrix<double, -1, 1> &B );
-
-template Matrix<double, 3, 1> operator-( const Matrix<double, 3, 1> &A, const Matrix<double, 3, 1> &B );
-template Matrix<double, 3, 1> operator-( const Matrix<double, 3, 1> &A, const Matrix<double, -1, 1> &B );
-
-// conversion 'ctor
-template Matrix<double, 3, 1>::Matrix( Matrix<double, -1, 1> &A );
-template Matrix<double, 3, 1>::Matrix( Matrix<double, -1, 1> &&A );
+#define INST_TYPE double
+#include "eigen_wrapper_inst.h"
+#undef INST_TYPE
 
 } // namespace EigenWrapper
 
