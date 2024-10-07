@@ -325,7 +325,7 @@ Matrix<S, R, 1> Matrix<S, R, C>::tail( int n ) {
 template <class S, int R, int C>
 S& Matrix<S, R, C>::operator()( int n ) {
     if constexpr ( C == 1 )
-        return ref->operator()( n );
+        return m()->operator()( n );
     else {
         assert( 0 );
         static S s;
@@ -336,7 +336,7 @@ S& Matrix<S, R, C>::operator()( int n ) {
 template <class S, int R, int C>
 S& Matrix<S, R, C>::operator()( int r, int c ) {
     if constexpr ( C != 1 )
-        return ref->operator()( r, c );
+        return m()->operator()( r, c );
     else {
         assert( 0 );
         static S s;
