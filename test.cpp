@@ -27,8 +27,10 @@ int main() {
     Eigen::Vector3d v3 = mx.col( 1 );
     v3 = v3 + vx;
     cout << "\nv3 =\n" << v3 << endl;
-    v3 << 1, 2, 3;
-    cout << "\nv3 =\n" << v3 << endl;
+
+    Eigen::Vector3i v3i;
+    v3i << 1, 2, 3;
+    cout << "\nv3i =\n" << v3i << endl;
 
     Eigen::Matrix3d m, m3;
     m3.setConstant( 0.5 );
