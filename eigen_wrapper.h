@@ -38,7 +38,7 @@ struct Matrix {
     void resize( int r, int c );
     void resize( int n );
     void conservativeResize( int n );
-    void conservativeResize(int r, int c);
+    void conservativeResize( int r, int c );
 
     void conservativeResizeLike( const M &A );
 
