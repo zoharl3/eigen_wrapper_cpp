@@ -1,5 +1,5 @@
 
-# eigen_wrapper
+# eigen_wrapper_cpp
 A wrapper around the [Eigen](https://eigen.tuxfamily.org/)  library to reduce C++ compilation time.
 
 The wrapper is unobtrusive: It uses the same interface as Eigen, and it can be enabled and disabled with a flag (macro).
