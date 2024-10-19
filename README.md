@@ -27,21 +27,21 @@ int main() {
 ```
 
 It compiles under a second with the wrapper.
-When disabling it, by commenting out the `#define USE_EIGEN_WRAPPER`, it takes seven seconds to compile in debug and two hours(!) in release.
+When disabling the wrapper, by commenting out the `#define USE_EIGEN_WRAPPER`, it takes seven seconds to compile in debug and two hours(!) in release.
 
-The wrapper isn't comprehensive (don't try to tackle it too much), and I'll add to it functionality (objects and methods) when I need it (send me yours, and I'll add it if it's reasonable).
+The wrapper isn't comprehensive (don't try to challenge it too much), and I'll add to it functionality (objects and methods) when I need it (send me yours, and I'll add it if it's reasonable).
 
-# Story
+# The background story
 I was pondering this idea
 
 https://www.reddit.com/r/cpp/comments/1fmbdl6/functionlevel_make_tool/
 
-I realized that the main issue is the new habit of template inline. There's no more separation of declaration and implementation into header and cpp and worse, functions are usually implemented within the class (inline). This means that for any occurrence of a function, its template is instantiated. 
+I realized that the main issue is the new habit of template inline. There's no more separation of declaration and definition into header and cpp and worse, functions are usually implemented within the class (inline). This means that for any occurrence of a function, its template is instantiated. 
 
-Ideally, I'd like a tool to separate implementation from headers. In the case of Eigen, it seems tricky, and I used this wrapper instead.
+Ideally, I'd like a tool to separate definition from headers. In the case of Eigen, it seems tricky, and I used this wrapper instead.
 
 # Performance
-The overhead of additional function calls is insignificant. The main problem is allocating memory on the heap (new) for internal Eigen objects even for stack variables. To alleviate that, try when possible to declare variables at hotspot as `thread_local`.
+The overhead of additional function calls is insignificant. The main problem is allocating memory on the heap (new) for internal Eigen objects even for stack variables. To alleviate that, try when possible to declare variables at hotspots as `thread_local`.
 
 # A real life example
 Rather than enabling the wrapper for the whole project, I enable it in the current cpp I'm working on. 
@@ -54,7 +54,7 @@ void func( double *p_x, int sz ) {
     memcpy( x.data(), p_x, sz * sizeof( double ) );
 }
 ```
-which can be called from another function via
+which can be called from another function using
 ```cpp
 VectorXd x( sz );
 ...
