@@ -35,8 +35,14 @@ template Matrix<INST_TYPE, 3, 1> operator-( const Matrix<INST_TYPE, 3, 1> &A, co
 // conversion/copy 'ctor
 template Matrix<INST_TYPE, -1, -1>::Matrix( Matrix<INST_TYPE, -1, -1> &&A );
 
+template Matrix<INST_TYPE, 2, 2>::Matrix( Matrix<INST_TYPE, 2, 2> &A );
+template Matrix<INST_TYPE, 2, 2>::Matrix( Matrix<INST_TYPE, 2, 2> &&A );
+
 template Matrix<INST_TYPE, 3, 1>::Matrix( Matrix<INST_TYPE, -1, 1> &A );
 template Matrix<INST_TYPE, 3, 1>::Matrix( Matrix<INST_TYPE, -1, 1> &&A );
+
+template Matrix<INST_TYPE, 3, 1>::Matrix( Matrix<INST_TYPE, 3, 1> &A );
+template Matrix<INST_TYPE, 3, 1>::Matrix( Matrix<INST_TYPE, 3, 1> &&A );
 
 
 
