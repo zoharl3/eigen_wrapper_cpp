@@ -29,6 +29,7 @@ template Matrix<INST_TYPE, 3, 1> operator+( const Matrix<INST_TYPE, 3, 1> &A, co
 template Matrix<INST_TYPE, 3, 1> operator+( const Matrix<INST_TYPE, 3, 1> &A, const Matrix<INST_TYPE, -1, 1> &B );
 
 template Matrix<INST_TYPE, 2, 1> operator-( const Matrix<INST_TYPE, 2, 1> &A, const Matrix<INST_TYPE, 2, 1> &B );
+template Matrix<INST_TYPE, 2, 2> operator-( const Matrix<INST_TYPE, 2, 2> &A, const Matrix<INST_TYPE, 2, 2> &B );
 template Matrix<INST_TYPE, 3, 1> operator-( const Matrix<INST_TYPE, 3, 1> &A, const Matrix<INST_TYPE, 3, 1> &B );
 template Matrix<INST_TYPE, 3, 1> operator-( const Matrix<INST_TYPE, 3, 1> &A, const Matrix<INST_TYPE, -1, 1> &B );
 
