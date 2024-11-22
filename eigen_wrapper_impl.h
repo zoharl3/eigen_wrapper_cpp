@@ -345,6 +345,28 @@ S& Matrix<S, R, C>::operator()( int r, int c ) {
 }
 
 template <class S, int R, int C>
+S Matrix<S, R, C>::operator()( int n ) const {
+    if constexpr ( C == 1 )
+        return m()->operator()( n );
+    else {
+        assert( 0 );
+        static S s;
+        return s;
+    }
+}
+
+template <class S, int R, int C>
+S Matrix<S, R, C>::operator()( int r, int c ) const {
+    if constexpr ( C != 1 )
+        return m()->operator()( r, c );
+    else {
+        assert( 0 );
+        static S s;
+        return s;
+    }
+}
+
+template <class S, int R, int C>
 template <int R2, int C2>
 Matrix<S, R, C>& Matrix<S, R, C>::operator=( const Matrix<S, R2, C2> &A ) {
     *m() = *A.m();
@@ -372,7 +394,13 @@ Matrix<S, R, C> Matrix<S, R, C>::operator<<( const S &s ) {
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::operator,( const S &s ) {
-    *com , s;
+    *com, s;
+    return *this;
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C>& Matrix<S, R, C>::operator/=( const S &s ) {
+    *m() /= s;
     return *this;
 }
 

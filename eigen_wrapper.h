@@ -73,6 +73,9 @@ struct Matrix {
     S &operator()( int n );
     S &operator()( int r, int c );
 
+    S operator()( int n ) const;
+    S operator()( int r, int c ) const;
+
     template <int R2, int C2>
     M &operator=( const Matrix<S, R2, C2> &A );
 
@@ -81,6 +84,7 @@ struct Matrix {
     M &operator-();
     M operator<<( const S &s );
     M operator,( const S &s );
+    M &operator/=( const S &s );
 
     // static
     static M Ones( int r, int c );
