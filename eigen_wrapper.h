@@ -20,6 +20,8 @@ struct Matrix {
     using M = Matrix<S, R, C>;
 
     Matrix();
+    Matrix( const S &s1, const S &s2 );
+    Matrix( const S &s1, const S &s2, const S &s3 );
 
     template <int R2, int C2>
     Matrix( Matrix<S, R2, C2> &A );
@@ -89,6 +91,7 @@ struct Matrix {
     // static
     static M Ones( int r, int c );
     static M Zero( int n );
+    static M Identity();
 
     // friends
     template <class S, int R, int C>
@@ -103,8 +106,11 @@ struct Matrix {
     template <class S, int R, int C, int R2, int C2>
     friend Matrix<S, R, C> operator-( const Matrix<S, R, C> &A, const Matrix<S, R2, C2> &B );
 
-    MATRIX_REF_TYPE *m(); // returns ref
-    MATRIX_REF_TYPE *m() const;
+    virtual MATRIX_REF_TYPE *&m(); // returns ref
+    virtual MATRIX_REF_TYPE *m() const;
+
+    virtual MATRIX_TYPE *&mat(); // returns mat
+    virtual COMMA_INIT_TYPE *&com(); // returns com
 
 // private: // complicates matters--requires to give friend access
     void update_ref();
@@ -118,9 +124,10 @@ struct Matrix {
     template <class S, int C, class E>
     friend Matrix<S, 1, C> make_row_ref( E &e );
 
-    MATRIX_TYPE *mat; // may remain null
-    MATRIX_REF_TYPE *ref; // may have only a ref
-    COMMA_INIT_TYPE *com;
+private:
+    MATRIX_TYPE *mat1; // may remain null
+    MATRIX_REF_TYPE *ref1; // may have only a ref
+    COMMA_INIT_TYPE *com1;
 };
 
 typedef std::ptrdiff_t Index;

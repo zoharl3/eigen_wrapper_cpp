@@ -11,7 +11,7 @@
 namespace srcEigen = Eigen;
 
 #define MATRIX_TYPE srcEigen::Matrix<S, R, C>
-#define MATRIX_REF_TYPE srcEigen::Ref<srcEigen::Matrix<S, R, C>>
+#define MATRIX_REF_TYPE srcEigen::Ref<MATRIX_TYPE>
 #define COMMA_INIT_TYPE srcEigen::CommaInitializer<MATRIX_REF_TYPE>
 
 #include "eigen_wrapper.h"
@@ -24,18 +24,32 @@ Matrix<S, R, C>::Matrix() {
 }
 
 template <class S, int R, int C>
+Matrix<S, R, C>::Matrix( const S &s1, const S &s2 ) {
+    assert( R == 2 && C == 1 );
+    init();
+    *this << s1, s2;
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C>::Matrix( const S &s1, const S &s2, const S &s3 ) {
+    assert( R == 2 && C == 1 );
+    init();
+    *this << s1, s2, s3;
+}
+
+template <class S, int R, int C>
 template <int R2, int C2>
 Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &A ) {
     init();
 
-    if ( A.com ) {
+    if ( A.com() ) {
         if constexpr ( R == R2 && C == C2 ) {
-            com = A.com;
-            A.com = nullptr; // so its d'tor won't delete it
+            com() = A.com();
+            A.com() = nullptr; // so its d'tor won't delete it
         } else
             assert( 0 );
     } else {
-        mat = new srcEigen::Matrix<S, R, C>( *A.m() );
+        mat() = new MATRIX_TYPE( *A.m() );
         update_ref();
     }
 }
@@ -45,54 +59,56 @@ template <int R2, int C2>
 Matrix<S, R, C>::Matrix( Matrix<S, R2, C2> &&A ) {
     init();
 
-    if ( A.com ) {
+    if ( A.com() ) { // com
         if constexpr ( R == R2 && C == C2 ) {
-            com = A.com;
-            A.com = nullptr; // so its d'tor won't delete it
+            com() = A.com();
+            A.com() = nullptr; // so its d'tor won't delete it
         } else
             assert( 0 );
-    } else if ( A.mat || R != R2 || C != C2 ) {
-        mat = new srcEigen::Matrix<S, R, C>( *A.m() );
+
+    } else if ( A.mat() || R != R2 || C != C2 ) { // mat
+        mat() = new MATRIX_TYPE( *A.m() );
         update_ref();
-    } else {
+
+    } else { //ref
         // transfer ref for make_col_ref() and head(), which return a temporary object that is copied; it should be the same ref that points to the original matrix
         if constexpr ( R == R2 && C == C2 ) {
-            ref = A.ref;
-            A.ref = nullptr; // so its d'tor won't delete it
+            m() = A.m();
+            A.m() = nullptr; // so its d'tor won't delete it
         }
     }
 }
 
 template <class S, int R, int C>
 Matrix<S, R, C>::~Matrix() {
-    delete mat;
-    mat = nullptr;
+    delete mat();
+    mat() = nullptr;
 
-    delete ref;
-    ref = nullptr;
+    delete m();
+    m() = nullptr;
 
-    delete com;
-    com = nullptr;
+    delete com();
+    com() = nullptr;
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::init() {
-    mat = nullptr;
-    ref = nullptr;
-    com = nullptr;
+    mat() = nullptr;
+    m() = nullptr;
+    com() = nullptr;
 }
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::update_ref() {
-    delete ref;
-    ref = new srcEigen::Ref<srcEigen::Matrix<S, R, C>>( *mat );
+    delete ref1;
+    ref1 = new MATRIX_REF_TYPE( *mat() );
 }
 
 template <class S, int R, int C>
 template <class E>
 Matrix<S, R, C> Matrix<S, R, C>::make_mat( const E &e ) {
     Matrix<S, R, C> P;
-    P.mat = new srcEigen::Matrix<S, R, C>( e );
+    P.mat() = new MATRIX_TYPE( e );
     P.update_ref();
     return P;
 }
@@ -100,30 +116,44 @@ Matrix<S, R, C> Matrix<S, R, C>::make_mat( const E &e ) {
 template <class S, int R, class E>
 Matrix<S, R, 1> make_col_ref( const E &e ) {
     Matrix<S, R, 1> P;
-    P.ref = new srcEigen::Ref<srcEigen::Matrix<S, R, 1>>( e );
+    P.m() = new srcEigen::Ref<srcEigen::Matrix<S, R, 1>>( e );
     return P;
 }
 
 template <class S, int C, class E>
 Matrix<S, 1, C> make_row_ref( E &e ) {
     Matrix<S, 1, C> P;
-    P.ref = new srcEigen::Ref<srcEigen::Matrix<S, 1, C>>( e );
+    P.m() = new srcEigen::Ref<srcEigen::Matrix<S, 1, C>>( e );
     return P;
 }
 
+/////
+
 template <class S, int R, int C>
-MATRIX_REF_TYPE *Matrix<S, R, C>::m() {
-    if ( !ref ) {
-        mat = new srcEigen::Matrix<S, R, C>();
-        update_ref();
+MATRIX_REF_TYPE *&Matrix<S, R, C>::m() {
+    if ( !ref1 ) {
+        mat() = new MATRIX_TYPE();
+        ref1 = new MATRIX_REF_TYPE( *mat() );
     }
-    return ref;
+    return ref1;
 }
 
 template <class S, int R, int C>
 MATRIX_REF_TYPE *Matrix<S, R, C>::m() const {
-    return ref;
+    return ref1;
 }
+
+template <class S, int R, int C>
+MATRIX_TYPE *&Matrix<S, R, C>::mat() {
+    return mat1;
+}
+
+template <class S, int R, int C>
+COMMA_INIT_TYPE *&Matrix<S, R, C>::com() {
+    return com1;
+}
+
+/////
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::setZero() { 
@@ -148,9 +178,9 @@ void Matrix<S, R, C>::setConstant( const S &s ) {
 template <class S, int R, int C>
 void Matrix<S, R, C>::resize( int r, int c ) {
     m(); // create if needed
-    assert( mat );
+    assert( mat() );
     if constexpr ( C == -1 ) {
-        mat->resize( r, c );
+        mat()->resize( r, c );
         update_ref();
     } else
         assert(0);
@@ -159,9 +189,9 @@ void Matrix<S, R, C>::resize( int r, int c ) {
 template <class S, int R, int C>
 void Matrix<S, R, C>::resize( int n ) {
     m();
-    assert( mat );
+    assert( mat() );
     if constexpr ( R == -1 && C == 1 ) {
-        mat->resize( n );
+        mat()->resize( n );
         update_ref();
     } else
         assert(0);
@@ -170,9 +200,9 @@ void Matrix<S, R, C>::resize( int n ) {
 template <class S, int R, int C>
 void Matrix<S, R, C>::conservativeResize( int n ) {
     m();
-    assert( mat );
+    assert( mat() );
     if constexpr ( R == -1 && C == 1 ) {
-        mat->conservativeResize( n );
+        mat()->conservativeResize( n );
         update_ref();
     } else
         assert( 0 );
@@ -180,9 +210,9 @@ void Matrix<S, R, C>::conservativeResize( int n ) {
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::conservativeResize( int r, int c ) {
-    assert( mat );
+    assert( mat() );
     if constexpr ( C == -1 ) {
-        mat->conservativeResize( r, c );
+        mat()->conservativeResize( r, c );
         update_ref();
     } else
         assert( 0 );
@@ -190,9 +220,9 @@ void Matrix<S, R, C>::conservativeResize( int r, int c ) {
 
 template <class S, int R, int C>
 void Matrix<S, R, C>::conservativeResizeLike( const Matrix<S, R, C> &A ) {
-    assert( mat );
+    assert( mat() );
     if constexpr ( C == -1 ) {
-        mat->conservativeResizeLike( *A.m() );
+        mat()->conservativeResizeLike( *A.m() );
         update_ref();
     } else
         assert( 0 );
@@ -388,13 +418,13 @@ Matrix<S, R, C> &Matrix<S, R, C>::operator-() {
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::operator<<( const S &s ) {
     Matrix<S, R, C> P;
-    P.com = new COMMA_INIT_TYPE( std::move( *m() << s ) );
+    P.com() = new COMMA_INIT_TYPE( std::move( *m() << s ) );
     return P;
 }
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::operator,( const S &s ) {
-    *com, s;
+    *com(), s;
     return *this;
 }
 
@@ -406,15 +436,25 @@ Matrix<S, R, C>& Matrix<S, R, C>::operator/=( const S &s ) {
 
 template <class S, int R, int C>
 Matrix<S, R, C> Matrix<S, R, C>::Ones( int r, int c ) {
-    return make_mat( srcEigen::Matrix<S, R, C>::Ones( r, c ) );
+    return make_mat( MATRIX_TYPE::Ones( r, c ) );
 }
 
 template <class S, int R, int C>
-Matrix<S, R, C> Matrix<S, R, C>::Zero(int n) {
+Matrix<S, R, C> Matrix<S, R, C>::Zero( int n ) {
     if constexpr ( C == 1 )
-        return make_mat( srcEigen::Matrix<S, R, C>::Zero( n ) );
+        return make_mat( MATRIX_TYPE::Zero( n ) );
     else {
         assert(0);
+        return Matrix<S, R, C>();
+    }
+}
+
+template <class S, int R, int C>
+Matrix<S, R, C> Matrix<S, R, C>::Identity() {
+    if constexpr ( R == C && R != -1 )
+        return make_mat( MATRIX_TYPE::Identity() );
+    else {
+        assert( 0 );
         return Matrix<S, R, C>();
     }
 }
